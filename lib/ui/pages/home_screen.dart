@@ -251,27 +251,27 @@ class HomeScreen extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                       cursorColor: kBlackColor,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.all(15),
-                        prefixIcon: const Icon(
-                          Icons.search,
-                          size: 30,
-                        ),
-                        hintText: 'Cari disini...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            defaultRadius,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            defaultRadius,
-                          ),
-                          borderSide: BorderSide(
-                            color: kPrimaryColor,
-                          ),
-                        ),
-                      ),
+                      // decoration: InputDecoration(
+                      //   contentPadding: const EdgeInsets.all(15),
+                      //   prefixIcon: const Icon(
+                      //     Icons.search,
+                      //     size: 30,
+                      //   ),
+                      //   hintText: 'Cari disini...',
+                      //   border: OutlineInputBorder(
+                      //     borderRadius: BorderRadius.circular(
+                      //       defaultRadius,
+                      //     ),
+                      //   ),
+                      //   focusedBorder: OutlineInputBorder(
+                      //     borderRadius: BorderRadius.circular(
+                      //       defaultRadius,
+                      //     ),
+                      //     borderSide: BorderSide(
+                      //       color: kPrimaryColor,
+                      //     ),
+                      //   ),
+                      // ),
                     ),
                   ),
                 ),
