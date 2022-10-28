@@ -1,9 +1,69 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-
 import '../../shared/theme.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  Future<void> login(context) async {
+    print([emailController.text, passwordController.text]);
+    final queryParam = {
+      'email': emailController.text,
+      'password': passwordController.text,
+    };
+    print(queryParam);
+    final uri = Uri.https('www.ayo-wisuda.site', '/api/dedi/login', queryParam);
+    final response = await http.post(uri);
+    print(response.body);
+
+    if (emailController.text == '' || passwordController.text == '') {
+      final snackBar = SnackBar(
+        content: Text('Isi Email dan Password terlebih dahulu'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } else {
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body.toString());
+        var pesan = data['pesan'] ?? '';
+
+        if (pesan != '') {
+          final snackBar = SnackBar(
+            content: Text(pesan.toString()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        } else {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setInt('id', data['id'] ?? 0);
+          prefs.setString('name', data['name'] ?? '');
+          prefs.setString('angkatan', data['angkatan'] ?? '');
+          prefs.setString('tempat', data['tempat'] ?? '');
+          prefs.setString('tanggal_lahir', data['tanggal_lahir'] ?? '');
+          prefs.setString('alamat', data['alamat'] ?? '');
+          prefs.setString('email', data['email'] ?? '');
+          Navigator.pushNamed(context, '/homescreen');
+        }
+      } else {
+        throw Exception('Jaringan Bermasalah');
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,185 +119,201 @@ class LoginScreen extends StatelessWidget {
                       const SizedBox(
                         width: 20,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Center(
-                            child: Text(
-                              'Selamat Datang,',
-                              style: whiteTextStyle.copyWith(
-                                fontSize: 35,
-                                fontWeight: black,
-                                height: 0.9,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 50),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                'Selamat Datang,',
+                                style: whiteTextStyle.copyWith(
+                                  fontSize: 35,
+                                  fontWeight: black,
+                                  height: 0.9,
+                                ),
                               ),
                             ),
-                          ),
-                          Center(
-                            child: Text(
-                              'Silahkan Masuk Ke Akun Anda',
-                              style: whiteTextStyle.copyWith(
-                                fontSize: 20,
-                                fontWeight: light,
-                                height: 1.4,
+                            Center(
+                              child: Text(
+                                'Silahkan Masuk Ke Akun Anda',
+                                style: whiteTextStyle.copyWith(
+                                  fontSize: 20,
+                                  fontWeight: light,
+                                  height: 1.4,
+                                ),
                               ),
-                            ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 60, right: 250),
-                  child: Text(
-                    'E-mail',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: light,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        defaultRadius,
-                      ),
-                      color: kWhiteColor,
-                    ),
-                    child: Flexible(
-                      child: TextField(
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        cursorColor: kBlackColor,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.all(15),
-                          hintText: 'Masukkan E-mail',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              defaultRadius,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              defaultRadius,
-                            ),
-                            borderSide: BorderSide(
-                              color: kPrimaryColor,
+                Expanded(
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20, right: 250),
+                          child: Text(
+                            'E-mail',
+                            style: blackTextStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: light,
+                              height: 1.4,
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 10, right: 220),
-                  child: Text(
-                    'Password',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: light,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        defaultRadius,
-                      ),
-                      color: kWhiteColor,
-                    ),
-                    child: Flexible(
-                      child: TextField(
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        cursorColor: kBlackColor,
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.all(15),
-                          hintText: 'Masukkan Password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              defaultRadius,
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
+                              ),
+                              color: kWhiteColor,
                             ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(
-                              defaultRadius,
-                            ),
-                            borderSide: BorderSide(
-                              color: kPrimaryColor,
+                            child: Flexible(
+                              child: TextField(
+                                controller: emailController,
+                                style: blackTextStyle.copyWith(
+                                  fontSize: 18,
+                                  fontWeight: light,
+                                ),
+                                cursorColor: kBlackColor,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.all(15),
+                                  hintText: 'Masukkan E-mail',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: kPrimaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () => Navigator.pushNamed(context, '/homescreen'),
-                  child: Container(
-                    width: 350,
-                    height: 60,
-                    margin: EdgeInsets.all(10),
-                    child: Card(
-                      color: Colors.green,
-                      child: Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 65),
-                          ),
-                          Text(
-                            "Masuk",
-                            style: whiteTextStyle.copyWith(
-                              fontSize: 25,
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10, right: 220),
+                          child: Text(
+                            'Password',
+                            style: blackTextStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: light,
+                              height: 1.4,
                             ),
                           ),
-                        ],
-                      ),
-                      elevation: 8,
-                      shadowColor: Colors.green,
-                      shape: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide(color: Colors.white)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                defaultRadius,
+                              ),
+                              color: kWhiteColor,
+                            ),
+                            child: Flexible(
+                              child: TextField(
+                                controller: passwordController,
+                                obscureText: true,
+                                style: blackTextStyle.copyWith(
+                                  fontSize: 18,
+                                  fontWeight: light,
+                                ),
+                                cursorColor: kBlackColor,
+                                decoration: InputDecoration(
+                                  contentPadding: const EdgeInsets.all(15),
+                                  hintText: 'Masukkan Password',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(
+                                      defaultRadius,
+                                    ),
+                                    borderSide: BorderSide(
+                                      color: kPrimaryColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => login(context),
+                          child: Container(
+                            width: 350,
+                            height: 60,
+                            margin: EdgeInsets.all(10),
+                            child: Card(
+                              color: Colors.green,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 65),
+                                  ),
+                                  Text(
+                                    "Masuk",
+                                    style: whiteTextStyle.copyWith(
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              elevation: 8,
+                              shadowColor: Colors.green,
+                              shape: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: BorderSide(color: Colors.white)),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0.01,
+                          ),
+                          child: Text(
+                            'Belum Memiliki Akun ?',
+                            style: blackTextStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: light,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0.05,
+                          ),
+                          child: Text(
+                            'Silahkan Hubungi Pihak Sekolah',
+                            style: blackTextStyle.copyWith(
+                              fontSize: 20,
+                              fontWeight: light,
+                              height: 1.4,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 0.01,
-                  ),
-                  child: Text(
-                    'Belum Memiliki Akun ?',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: light,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    top: 0.05,
-                  ),
-                  child: Text(
-                    'Silahkan Hubungi Pihak Sekolah',
-                    style: blackTextStyle.copyWith(
-                      fontSize: 20,
-                      fontWeight: light,
-                      height: 1.4,
-                    ),
-                  ),
-                ),
+                )
               ],
             ),
           ),

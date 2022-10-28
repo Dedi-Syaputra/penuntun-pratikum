@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skripsi/ui/pages/login_screen.dart';
 import '../../shared/theme.dart';
 
@@ -12,11 +13,25 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  var id;
+
+  getPrefData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      id = prefs.getInt('id') ?? null;
+    });
+  }
+
   void initState() {
+    getPrefData();
     Timer(
       const Duration(seconds: 3),
       () {
-        Navigator.pushNamed(context, '/loginscreen');
+        if (id == null) {
+          Navigator.pushNamed(context, '/loginscreen');
+        } else {
+          Navigator.pushNamed(context, '/homescreen');
+        }
       },
     );
     super.initState();

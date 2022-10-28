@@ -1,10 +1,38 @@
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../shared/theme.dart';
 import 'package:skripsi/ui/pages/custom_card_menu.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  var name;
+
+  Future<void> _launchUrl(url) async {
+    if (!await launchUrl(url)) {
+      throw 'Could not launch $url';
+    }
+  }
+
+  getPrefData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      name = prefs.getString('name') ?? 'Tidak ada';
+    });
+  }
+
+  removePrefData(context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.clear();
+    Navigator.pushNamed(context, '/loginscreen');
+  }
+
   var MenuHome = [
     {
       "image": "images/bakteri.png",
@@ -65,6 +93,12 @@ class HomeScreen extends StatelessWidget {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    getPrefData();
+  }
+
+  @override
   Widget build(BuildContext context) {
     var scaffoldkey = GlobalKey<ScaffoldState>();
     return Scaffold(
@@ -91,7 +125,7 @@ class HomeScreen extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.all(6.0),
                     child: Text(
-                      'Dedi Syaputra',
+                      name,
                       style: whiteTextStyle.copyWith(
                         fontSize: 20,
                       ),
@@ -101,31 +135,106 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: const Text('E-mail'),
+              title: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _launchUrl(Uri.parse(
+                          'mailto:smkdharmaanalitika@gmail.com?subject=Kritik dan Saran&body='));
+                    },
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/gmail.png',
+                          width: 20,
+                        ),
+                        Text('  smkdharmaanalitika@gmail.com'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              title: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _launchUrl(Uri.parse(
+                          'https://www.instagram.com/smkdharmaanalitika/?hl=id'));
+                    },
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/instagram.png',
+                          width: 20,
+                        ),
+                        Text(' SMK DHARMA ANALITIKA MEDAN'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Instagram'),
+              title: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _launchUrl(Uri.parse(
+                          'https://web.facebook.com/smkdharmaanalitikamedan'));
+                    },
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/facebook.png',
+                          width: 20,
+                        ),
+                        Text(' SMK DHARMA ANALITIKA MEDAN'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('Facebook'),
+              title: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      _launchUrl(Uri.parse(
+                          'https://www.youtube.com/channel/UCG66k24PAix9XK1-m82Wfrg'));
+                    },
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          'images/youtube.png',
+                          width: 20,
+                        ),
+                        Text(' SMK DHARMA ANALITIKA MEDAN'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
               onTap: () {
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              title: const Text('About'),
+              title: Center(child: const Text('About')),
               onTap: () {
-                Navigator.pop(context);
+                Navigator.pushNamed(context, '/aboutscreen');
               },
             ),
             GestureDetector(
-              onTap: () => Navigator.pushNamed(context, '/loginscreen'),
+              onTap: () => removePrefData(context),
               child: Container(
                 width: 200,
                 height: 50,
@@ -178,7 +287,7 @@ class HomeScreen extends StatelessWidget {
           Column(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 60),
+                padding: const EdgeInsets.only(top: 70),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -215,15 +324,15 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               'Selamat\nDatang',
                               style: whiteTextStyle.copyWith(
-                                fontSize: 35,
+                                fontSize: 40,
                                 fontWeight: black,
                                 height: 0.9,
                               ),
                             ),
                             Text(
-                              'Semangat Belajar',
+                              'Semangat Belajar !',
                               style: whiteTextStyle.copyWith(
-                                fontSize: 15,
+                                fontSize: 20,
                                 fontWeight: light,
                                 height: 1.4,
                               ),
@@ -236,7 +345,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.only(top: 50),
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(
@@ -244,36 +353,36 @@ class HomeScreen extends StatelessWidget {
                     ),
                     color: kWhiteColor,
                   ),
-                  child: Flexible(
-                    child: TextField(
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      cursorColor: kBlackColor,
-                      // decoration: InputDecoration(
-                      //   contentPadding: const EdgeInsets.all(15),
-                      //   prefixIcon: const Icon(
-                      //     Icons.search,
-                      //     size: 30,
-                      //   ),
-                      //   hintText: 'Cari disini...',
-                      //   border: OutlineInputBorder(
-                      //     borderRadius: BorderRadius.circular(
-                      //       defaultRadius,
-                      //     ),
-                      //   ),
-                      //   focusedBorder: OutlineInputBorder(
-                      //     borderRadius: BorderRadius.circular(
-                      //       defaultRadius,
-                      //     ),
-                      //     borderSide: BorderSide(
-                      //       color: kPrimaryColor,
-                      //     ),
-                      //   ),
-                      // ),
-                    ),
-                  ),
+                  // child: Flexible(
+                  //   child: TextField(
+                  //     style: const TextStyle(
+                  //       fontSize: 18,
+                  //       fontWeight: FontWeight.bold,
+                  //     ),
+                  //     cursorColor: kBlackColor,
+                  //     // decoration: InputDecoration(
+                  //     //   contentPadding: const EdgeInsets.all(15),
+                  //     //   prefixIcon: const Icon(
+                  //     //     Icons.search,
+                  //     //     size: 30,
+                  //     //   ),
+                  //     //   hintText: 'Cari disini...',
+                  //     //   border: OutlineInputBorder(
+                  //     //     borderRadius: BorderRadius.circular(
+                  //     //       defaultRadius,
+                  //     //     ),
+                  //     //   ),
+                  //     //   focusedBorder: OutlineInputBorder(
+                  //     //     borderRadius: BorderRadius.circular(
+                  //     //       defaultRadius,
+                  //     //     ),
+                  //     //     borderSide: BorderSide(
+                  //     //       color: kPrimaryColor,
+                  //     //     ),
+                  //     //   ),
+                  //     // ),
+                  //   ),
+                  // ),
                 ),
               ),
               Expanded(

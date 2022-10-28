@@ -389,21 +389,18 @@ class _QuizScreenState extends State<QuizScreen> {
                             }
                           },
                           child: Container(
-                            width: 120,
-                            height: 40,
+                            width: 160,
+                            height: 50,
                             margin: EdgeInsets.all(30),
                             child: Card(
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 15),
+                              child: Center(
+                                child: Text(
+                                  _soalTerjawab < 10 ? "Lanjut" : "Selesai",
+                                  style: whiteTextStyle.copyWith(
+                                    fontSize: 20,
                                   ),
-                                  Text(
-                                    _soalTerjawab < 10 ? "Lanjut" : "Selesai",
-                                    style: whiteTextStyle.copyWith(),
-                                  ),
-                                ],
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                               elevation: 8,
                               color: kPrimaryColor,
